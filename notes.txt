@@ -1,0 +1,697 @@
+Use python 3.5
+
+Install packages
+
+pip install numpy
+pip install pandas
+pip install matplotlib
+pip install ipython
+
+# some error as of now. may need anacondas distribution
+pip install seaborn
+
+- you can also install packages using Pycharm !
+
+- comprehensions
+
+x = [ i*2  for i in range(10)  ]
+
+- naked comprehensions
+
+- for this remove square brackets in end
+
+# skips intermediate list
+s =  sum( i for i in range(10) )
+
+- profiling code
+
+timeit  <program>
+--------------------------------------------------------------------------------------------------------
+[ numpy ]
+
+- array elements are located next to each other in memory for efficiency
+
+- common types
+numpy.int32
+numpy.float64
+
+- create arrays of given dimensions
+create arrays with random elements
+load/save arrays to files
+
+- numpy slices
+they are a view into original array.
+if you modify the slice you also modify the original array
+if you want a clone, you need to make a copy() of it
+
+Record arrays
+-  arrays of objects
+
+employees  =  numpy.array(  [  ('john',  32) ,  ('scott', 50) ] ,  
+                                          dtype = [ ('name',  string) , ('age', numpy.int32)]  )
+
+
+- matplotlib
+Had to fix a line in font_manager.py for the import to work
+http://stackoverflow.com/questions/34004063/error-on-import-matplotlib-pyplot-on-anaconda3-for-windows-10-home-64-bit-pc/
+
+- parsing files
+numpy.genfromtxt can be used to create array records from a delimited txt file
+
+--------------------------------------------------------------------------------------------------------
+[ pandas ]
+
+- etymology
+Panel data structures
+- built on top of numpy
+- handles tabular, 3d data also
+
+Series / Timeseries  -  1d labelled vectors
+DataFrames - 2d spreadsheet like structures
+Panel - 3d labelled array, collection of dataframes
+
+Missing data handling
+Time series functionality
+Indexed data structures
+Easier alignment when combining different data sources with different indexes 
+
+- MINS
+M - maplotlib for plotting
+I - IPython - interactive dev env
+N - numpy - arrays, random numbers, ffts, liner algebra
+S - scipy - probability distributions, signal processing 
+
+- Merge
+merge by a key
+Inner join by default
+
+- Group By
+Split-Apply-Combine
+
+Split - data by keys into groups
+Apply - apply a function on each group
+Combine - Combine the results of apply functions
+
+- built on top of numpy
+
+- iloc()
+- numeric indices
+df.iloc(0:2)
+
+- loc()
+non-numeric indices ( hence inclusive)
+df.loc('jan' : 'july')
+
+- multi indexes
+- set multiple indices
+set_index('name', 'year')
+
+- pd.merge(df1, df2)
+It will merge based on common column name
+
+- pd.merge(df1, df2, left_on='x', right_on='y')
+merge on columns x and y
+ pd.merge(df1, df2, left_index='x', right_index='y')
+merge on indices x and y 
+
+- outer join etc
+pd.merge(df1, df2, how='outer')
+
+left/right join
+pd.merge(df1, df2, how='left')
+pd.merge(df1, df2, how='right')
+
+- concatenate 
+add all the rows from one dataframe to bottom of other
+pd.concat([df1, df2])
+axis = 0
+
+- concatenate across columns
+pd.concat([df1, df2] , axis = 1)
+
+- multi index
+first index based on one index, then sub index based on next
+eg
+
+index one - year  2010, 2011 ..
+index rwo - months inside each year  jan,feb ...
+--------------------------------------------------------------------------------------------------------
+df.read_csv('data.csv')
+# metadata
+df.shape()
+df.columns()
+df.describe()
+
+# top few values
+df.head()
+
+# see if missing values
+pd.isnull(df).any()
+
+# drop missing values
+df.dropna(axis=0)
+df.shape()
+--------------------------------------------------------------------------------------------------------
+[ Brandon Rhodes - pycon 2015 ]
+
+Imdb data analysis
+
+- A pandas column is actually a series 
+
+- preferably choose column names without spaces and special chars
+Then we can access column names with attributes
+eg
+titles['year']
+can also be accessed as
+titles.year
+
+- titles.year + 10
+Add 10 to all year s
+
+- return rows with years less than 1985
+titles[titles.year > 1985]
+
+- titles with year before 1980 or after 1990
+titles[ titles.year < 1980  or titles.year >= 1990 ]    # error
+# this wont work as 'or' cannot work on lists
+
+- so use the  '|' operator which is overloaded 
+- also parenthesis are needed , else |  operator precendence with or operands in middle
+titles[ (titles.year < 1980) | ( titles.year >= 1990 ) ]
+
+
+- t = titles
+
+- t[t.title == 'Macbeth'].sort('year')
+movies with given title sorted by 'year' column
+
+# for a 'series' the sorting method is called order
+t.year.order()
+
+- t.year.str.starts_with()
+str attribute give the capability to operate on series like string
+
+- series.sort_index()
+sort based on index rather than value 
+
+- title.year.value_count()
+series of frequency counts
+
+- c = cast
+
+- this will do N comparisons ie on all data 
+c[c.title == 'starwars']
+
+change index from line number to title
+c = c.set_index(['title'])
+
+- Indexing is faster if it is sorted
+Then it could use binary search
+c = c.set_index(['title']).sort_index()
+
+%% time
+c.loc['starwars']
+
+- multi index
+c = c.set_index(['title', 'year']).sort_index()
+
+c.loc['starwars'].loc[2000]
+or
+c.loc[('starwars', 1972)]
+
+- reset index
+c.reset_index(['title', 'year'])
+
+
+- c = c[c.name == 'clooney' ]
+c.groupby(['year']).size()
+c.groupby(['year']).size().plot(kind='bar')
+
+group by decade
+c.groupby(c.year // 10 *10).size()
+
+--------------------------------------------------------------------------------------------------------
+[ Kevin Markham ]
+
+Best Series
+
+-  IMP
+columns are Series
+So you can select a series and invoke functions applicable to Series 
+
+- IMP
+Many Series and dataframe methods return Series/DataFrames themselves
+Realizing this helps to apply more methods on those return Series/DataFrames 
+
+- inplace='true' changes the underlying data inplace. 
+eg sort. by default (inplace='false') it just returns values sorted. Underlying data remains same
+
+[ filtering ]
+
+[ Boolean Indexing ] 
+
+this is called Boolean Indexing
+create a series of boolean and use it to index
+t.titles[t.rating > 5 ]
+
+- drop a column
+t.drop('titles', axis=1)
+
+- string methods
+use str on attribute
+t.title.str.contains('starwars')
+
+- sql comparison
+ https://pandas.pydata.org/pandas-docs/stable/comparison_with_sql.html
+ 
+- change type of a series
+use 'astype' method
+drinks.price.str.astype(float)
+
+[ Aggregation ]  
+
+- groupby - groups by a category
+Aggregation - this is like filtering, but done for all values of a given type and combined
+
+t.groupby('country').mean()
+t.groupby('country').max()
+t.groupby('country').size()
+
+t.groupby('country').agg(['mean', 'count', 'max'])
+
+
+- t.genre.value_counts()
+gives a frequency distribution by type
+eg
+
+Drama 10
+Action 20
+Thriller 25
+
+
+- t.genre.value_counts(normalize=True)
+normalizes the value count
+
+- plot how many genres are there of each type
+t.genre.value_counts().plot(kind='bar')
+
+[ missing values ]
+
+t.isnull()
+
+missing values count
+t.isnull().sum()
+
+- drop rows if *any* of the values are missing
+t.dropna(how='any')
+
+drop rows if there is NaN in given columns
+t.dropna(subset=['genre', 'country'], how='any')
+
+- fill NaN with something else
+t.genre.fillna(value='Misc')
+
+- Operations on dataframe
+Filtering
+Aggregation
+Merging
+
+[ Index ]
+used for
+Identification
+Selection
+Alignment
+
+- the index values need not be unique
+
+- change index to another column
+drinks.set_index('country', inplace=True)
+
+now we can use it to locate items 
+drinks.loc['Brazil', 'beer_servings']
+
+drinks.loc[row_indexes, column_names]
+
+- reset index
+drinks.reset_index(inplace=True)
+
+- IMP
+even Series (ie dataframe columns) have indexes
+realizing this helps to manipulate data more
+
+eg this is a series with an index
+drinks.continent.value_counts()
+Africa 50
+Asia   20
+
+eg
+x = drinks.continent.value_counts()
+x['Africa']
+
+x.sort_values()
+x.sort_index()
+
+
+- Alignment
+alignment is based on same index
+
+- align by column side-by-side , based on index
+pd.concat([drinks, people], axis=1)
+
+[ loc, iloc, ix  ]
+
+- loc
+Find by Label
+
+drinks.loc[row_indexes, column_names]
+
+drinks.loc[ drinks.continent == 'Asia', 'beer_servings' ]
+
+Here the ranges are 'inclusive' as the indexing is via Labels
+drinks.loc[ drinks.continent == 'Asia', 'beer_servings' : 'wine_servings' ]
+
+- iloc
+Find by Integer number
+
+integer based location
+
+drinks.iloc[ :, 0:4 ]
+
+the ranges are 'exlusive' (as in python array ranges)
+
+- ix
+Find by Mix of Label and Integer 
+*Not recommended*
+
+drinks.ix[1, 'beer_servings']
+or
+drinks.ix['Albania', 0 ]
+
+This will get confusing when the indexes and column names themselves are integers
+So this is not recommended. It is there for historical reasons
+
+
+[ inplace ]
+
+- by default this is false
+
+this will make change inplace
+inplace=True 
+
+- instead, you can also just reassign the result , this has same effect
+
+ufo.set_index('Time', inplace=True)
+->
+ufo = ufo.set_index('Time')
+
+
+[ read/save dataframes ]
+
+- csv
+df.to_csv('test.csv')
+
+- pkl format, instead of csv
+df.to_pickle('test.pkl')
+
+df = pd.read_pickle('test.pkl')
+
+
+[ sampling ]
+
+- sample a fraction of rows
+random_state is for getting same set of rows every time
+ufo.sample(frac = 0.75, random_state=10)
+
+- get a random sample for training, and a exclusive sample for testing ML
+
+train = ufo.sample(frac = 0.75, random_state=10)
+
+test = ufo.loc[ ~ ufo.index.isin(train.index) , : ]
+
+[ creating categorical bins ]
+
+bins = [0, 16, 25, 35, 45, 60, 80] 
+group_names = ['child', 'young adult', 'adult', 'middle aged', 'old', 'sage'] 
+
+train['age_group'] = pd.cut(train.Age, bins, labels=group_names)﻿
+
+- new colums are also created easily like above
+
+[ apply ]
+we can add new columns easily
+eg
+
+def major(age):
+  if age > 17:
+    return True
+  else:
+    return False
+
+df['legal_drinker'] = df.age.apply(major)
+
+[ date time ]
+
+ufo['Time'] = pd.to_datetime(ufo.Time)
+
+ufo.Time.dt.<property>
+
+ufo.Time.dt.hour
+ufo.Time.dt.dayofweek
+etc
+
+- get rows from 1999
+
+ts = pd.to_datetime('1/1/1999')
+
+operator is overloaded for datetime objects for comparisons
+ufo.loc[ ufo.Time >= ts ]
+
+
+[ Setting with copy warning ]
+
+- this wont work as the selection is a copy. hence the warning
+movies[movies.rating == 'NOT RATED'].rating = np.nan
+
+- this will work
+movies.loc[movies.rating == 'NOT RATED', 'rating'] = np.nan
+
+[ map, apply, applymap ]
+
+[ map ]   -> MAP
+- applicable on a Series
+
+pass a dictionary/function to map
+
+df['sex_num'] =  df.sex.map( {'male' : 1, 'female' : 0} )
+
+[ apply ]
+- applicable on a  Series /  DataFrame
+
+- pass a function 
+- also can pass parameters if needed
+
+Series examples  
+def getLastName(str, capitalize):
+  ...
+
+df['last_name'] = df.name.str.apply(getLastName, capitalize=False)
+
+df['weight_ceil'] = df.weight.apply(np.ceil)
+
+df['name_caps'] = df.name.str.apply(lambda s : toupper(s))
+
+DataFrame examples  [ REDUCE ]
+
+Reduce across an axis
+*Based on nature of function passed* , result can be a 1:1 mapping Series or a scalar (eg max, )
+
+- find maximum of servings 
+df.loc[:, 'beer_servings' : 'wine_servings' ].apply(max, axis=0)
+
+beer_servings  10
+wine_servings  30
+
+[ applymap ]
+- there is no axis
+- the function is applied on all elements of dataframe
+
+convert all elements to float
+df.applymap(float)
+
+
+[ reduce memory ]
+
+- store strings are integers when the values the string can take are a fixed number
+
+drinks['continent'] =  drinks['continent'].astype('category')
+
+Africa 0
+Asia   1
+...
+
+- ordered categories
+drinks['quality'] = drinks.quality.astype('category', categories = ['good', 'very good', 'excellent'] , ordered=True)
+
+- now operators honour the ordering we gave above
+- get drinks better than 'good' quality 
+drinks.loc[drinks.quality > 'good' , : ]
+--------------------------------------------------------------------------------------------------------
+[ Machine Learning - Kevin Markham ]
+
+Supervised learning
+- predicts a specific outcome based on a training set
+- eg spam or 'not spam'
+ 
+
+Unsupervised learning
+- cluster into groups
+
+Iris dataset
+
+[ Supervised learning ]
+
+Classification
+- classify into one category
+
+Regression
+- predict value of a continuous variable
+
+Rows  - Observations
+Columns  - Features 
+
+Outcome / Prediction - Response / Target
+
+Scikit requirements
+- Features / Responses are numeric , numpy arrays
+- will also accept pandas dataframe/Series
+
+Convention
+X - Features matrix
+y - Response vector
+
+
+[ KNN - K Nearest Neighbours ] 
+
+- The 'distance' of input observation to be predicted to all observations are calculated
+- K nearest neighbours are found
+- The most frequent neighbours are picked
+- Their category is the predicted response
+
+from sklearn.neighbors import KNeighborsClassifier
+
+knn = KNeighborsClassifier(n_neighbors = 5)
+
+knn.fit(X, y)
+
+knn.predict( [1,3,5,6] ) 
+
+You can also use LogisticRegression for classification
+
+[ Model Evaluation ]
+Which model to use
+Which tuning parameter to use
+
+
+Train / Test on same dataset
+- we train on given data
+- we test on same data
+- find accuracy_score
+
+from sklearn import metrics
+score = metrics.accuracy_score(y, y_pred) 
+
+But this will lead to 'overfitting'
+
+[ Train / Test  Split ]
+
+- we split given data into train / test
+- Train on train set
+- Test on test set
+- find accuracy_score
+
+from sklearn.cross_validation import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=4)
+
+# logistic regression
+logreg.fit(X_train, y_train)
+y_pred = logreg.predict(X_test)
+# accuracy_score is the %age of correct predicted values.
+# this is the metric used as this is a classification problem
+score = metrics.accuracy_score(y_test, y_pred)
+
+# KNN 
+- do same with different values of K and find score
+- IMP - use random_state arg so that we are comparing the same train / test split
+
+- Once you select a model, tuning parameter, retrain the model again on all data 
+- As we dont want to lose training opportunity on splitted data also
+
+[ Linear Regression ]
+
+y = b0 + b1 * x[1] + .. + bn * x[n]
+
+from sklearn.linear_model import LinearRegression
+
+linreg = LinearRegression()
+
+linreg.fit(X, y)
+
+- Model evaluation
+
+- we use RMSE - root of mean-square-error
+- root of mean of errors squared
+- squaring of errors helps in making big errors bigger, thus detecting them
+- by taking square root we 
+np.sqrt(metrics.mean_squared_error(true, pred
+- since it is error we want to minimize it
+
+- Model parameters
+We can plot each feature vs response and see if there is a linear relation ship
+sns.pairplot(data, x_vars=['TV','Radio','Newspaper'], y_vars='Sales', size=7, aspect=0.7, kind='reg')
+
+- if not we can drop those features from model
+
+[ Cross Validation ] 
+
+- train / test split is a high variance estimate
+- as it depends on the split
+- K Fold cross validation 
+- This will train / test split K times
+- Split data to K folds
+- K - 1 fold will be on train set, 1 fold will be on test set
+- Like this do K times
+- gives the score as a array . Its mean will give a better estimate
+
+from sklearn.cross_validation import cross_val_score
+knn = KNeighborsClassifier(n_neighbors=5)
+# normally a 10 - fold is used (cv=10)
+scores = cross_val_score(knn, X, y, cv=10, scoring='accuracy') 
+
+[ Tuning model parameters ]
+
+- In KNN we have to simulate with different K to find optimal K
+- There are scikit classes which helps in doing it 
+- it will run through range of all given options and their combinations , run cross_validation and find optimal options
+
+from sklearn.grid_search import GridSearchCV
+
+k_range = list(range(1, 31))
+weight_options = ['uniform', 'distance']
+
+param_grid = dict(n_neighbors=k_range, weights=weight_options)
+
+grid = GridSearchCV(knn, param_grid, cv=10, scoring='accuracy')
+grid.fit(X, y)
+
+print(grid.best_score_)
+print(grid.best_params_)
+
+0.98
+{'n_neighbors': 13, 'weights': 'uniform'}
+
+- running all combinations may be time consuming
+- so we can use random search
+
+from sklearn.grid_search import RandomizedSearchCV
+rand = RandomizedSearchCV(knn, param_dist, cv=10, scoring='accuracy', n_iter=10, random_state=5)
+--------------------------------------------------------------------------------------------------------
