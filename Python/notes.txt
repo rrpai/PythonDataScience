@@ -1,0 +1,321 @@
+Python 3
+- everything in Python 3 is an object
+- There are mutable and immutable types
+
+- enumerating dictionaries
+myDict = {  'name' :  'John' ,  'age' : 40 }
+
+for  key in myDict.keys():
+  ..
+  
+for  val in myDict.values():
+  ..  
+  
+for  key, val in myDict.items():
+  ..  
+  
+- The intervals used in python APIs are half open
+
+eg  [start, end) 
+
+ie start to end - 1
+  
+  
+- double under   __name__  
+eg 
+__init__ 
+
+- tuples are immutable
+
+- single element tuple
+
+t = (1,)
+note that it is the comma that creates a tuple, not the parenthesis
+
+- if main is written like this, then if this file is imported, the main code will not be executed. 
+Hence the file can be safely imported to another file to make use of any class it has. Ie it can be used as a module
+if __name__ == '__main__':
+  main()
+
+--------------------------------------------------------------------------------------------------------
+Functions
+- can be assigned to variables , passed as arguments to functions , embedded in a data structure etc
+
+Lambda - anonymous functions
+
+myfunc = lamda x,y : x + y
+--------------------------------------------------------------------------------------------------------
+[ MAP ]
+
+- return a new list with function applied on each element of arg list
+
+map(func, list) -> newList
+
+def doubleNum(num):
+    return num * 2
+
+aList = [1, 4, 10]
+
+list2 = map(doubleNum, aList)
+
+--------------------------------------------------------------------------------------------------------
+[ FILTER ]
+
+- create a new list with items for which filter(item) is true
+
+filter(func, list) -> newList
+
+def isEven(num):
+    return num % 2 == 0
+
+
+list2 = filter(isEven, aList)
+--------------------------------------------------------------------------------------------------------
+[ REDUCE]
+
+- returns a single number by operating the function on a list
+
+def add(x, y):
+    return x + y
+
+total = reduce(add, aList)
+
+print total
+--------------------------------------------------------------------------------------------------------
+ITERABLE / ITERATOR
+
+
+Alphabet is a an iterable because of __iter__ method
+
+
+class Alphabet:
+  def __init__(self):
+    self.index = -1
+    self.letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+  def __iter__(self):
+    return self
+
+  # this is for python 2.7.  in python 3 it is __next__
+  def next(self):
+    if self.index >= len(self.letters) - 1:
+      raise StopIteration
+    self.index += 1
+    return self.letters[self.index]
+
+
+alphabet = Alphabet()
+for x in alphabet:
+  print x
+
+alphabet2 = Alphabet()
+for i in range(1, 10):
+  x = next(alphabet2)
+  print x
+--------------------------------------------------------------------------------------------------------
+LIST COMPREHENSIONS 
+
+- A list comprehension executes an expression against an iterable
+- list comprehensions are sorrounded by  square brackets - []
+
+#  using map
+print list (map(lambda x: 2 * x, myList)
+
+# using list comprehension
+print  [  2*x for x in myList ]
+--------------------------------------------------------------------------------------------------------
+GENERATOR FUNCTIONS
+
+A generator function returns a result generator when called They can be suspended and resumed during execution of
+your program to create results over time rather then all at once
+
+
+def isprime(num):
+    for i in range(2, num):
+        if (num % i) == 0:
+            return False
+    return True
+ 
+# This is the generator
+def gen_primes(max_number):
+    for num1 in range(2, max_number):
+        if isprime(num1):
+            # yield is what makes this a generator. 
+            # When called by next it will return the next result
+            yield num1
+ 
+# Create a reference to the generator
+prime = gen_primes(50)
+ 
+# Call next for each result
+print("Prime :", next(prime))
+print("Prime :", next(prime))
+print("Prime :", next(prime))
+--------------------------------------------------------------------------------------------------------
+GENERATOR EXPRESSIONS 
+
+- Generator expressions look just like list comprehensions
+-  but they return results one at a time
+-  The are surrounded by parentheses instead of [ ]
+ 
+double = (x * 2 for x in range(10))
+ 
+print("Double :", next(double))
+print("Double :", next(double))
+ 
+# You can iterate through all results as well
+for num in double:
+    print(num)
+-----------------------------------------------------------------------------------------
+Python 3
+
+Magic methods
+- used for operator overloading in python
+-eg __lt__, __eq__ etc  (corresponds to  <, = .. )
+
+Static methods
+- @staticmethod decorator
+
+Static variables
+- if we dont use self, it becomes static
+
+Getters / setters
+- @property decorator
+
+Exceptions
+- try/exception/else/finally
+- else is used when no exception was raised
+- others are similar to java
+- can create custom exceptions by extending Exception class
+--------------------------------------------------------------------------------------------------------
+[MISC ]
+
+- python automatically prints new line for print. To avoid it use  'end' argument
+print(line, end='')
+
+- many classes have iterators and hence   'for val in obj' construct works
+fh = open('lines.txt')
+for line in fh.readLines()
+  print(line, end='')
+  
+or you can also use strip  
+line.strip()
+  
+- x == y
+looks for value equality
+
+x is y
+looks for value equality and also the variables have to refer to same object
+
+x = 5
+y = 5
+
+x == y  - true
+x is y  - false  as they dont refer same object
+
+
+- slice
+
+list[0:5] - gives element from index 0 to  4
+ranges are non inclusive of the 2nd argument
+
+- raising own exception
+
+raise ValueError('Custom message')
+--------------------------------------------------------------------------------------------------------
+[FUNCTIONS]
+
+
+- DEFAULT VALUES
+
+# rate is optional, but will take default value of None
+def myfunc(principal,  rate=None):
+  pass
+  
+myfunc(10)
+myfunc(10,50)  
+
+- VARIABLE ARGUMENTS
+
+mandatory args come first, then declare varargs with a *
+- the *args come as a tuple
+
+def myfunc(parent, *args)
+  for a in args:
+    print a
+
+myfunc(10)
+myfunc(10, 1)
+myfunc(10, 1, 2, 3)
+
+- NAMED VARIABLE ARGUMENTS 
+
+# key word args
+def myfunc(**kwargs):
+  print kwargs['principal'], kwargs['rate'], kwargs['cess']
+  
+  for a in kwargs:
+    print a , kwargs[a]
+
+# call  
+myfunc(principal = 100, rate = 8, cess = 2)
+
+
+- GENERATOR FUNCTIONS
+
+execution will stop after yield. 
+Next time it is called,  execution will resume just after yield
+
+def inclusiveRange(start, stop, step):
+  cur = start:
+  while cur <= stop:
+    yield cur
+    cur += step
+    
+for a in inclusiveRange(0,10,1):
+      print a
+      
+--------------------------------------------------------------------------------------------------------
+[CLASSES]      
+
+- INHERITANCE
+
+class Animal:
+  def move()
+    pass
+
+class Deer(Animal):
+  # inherits parents methods
+  
+- python supports polymorphism
+
+-GENERATOR
+
+class InclusiveRange:
+    def __init__(self):
+      
+     def __iter__(self):
+      cur  = self.start
+      while (cur <= self.stop):
+        yield cur
+        cur += self.start
+--------------------------------------------------------------------------------------------------------
+[ DATABASE ]
+
+- sqllite3
+
+- see DbTest.py
+--------------------------------------------------------------------------------------------------------
+[MODULES]
+
+
+- pypi is the repository of packages (python package index - PyPI)
+
+- download a package and run
+python setup.py install
+--------------------------------------------------------------------------------------------------------
+[python packages]
+
+- a dir which has __init__.py file is considered as a package
+- if dir Math has this file, 'Math' is a package
+--------------------------------------------------------------------------------------------------------
